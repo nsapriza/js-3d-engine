@@ -9,6 +9,22 @@ function drawPoint(x,y){
     ctx.fillRect(x-0.5, y-0.5, 0.5, 0.5);
     ctx.stroke();
 }
+
+function drawCross(x,y){
+    for(let i = 0;i<=10;i++){
+        drawPoint(x,y+i)
+    }
+    for(let i = 0;i<=10;i++){
+        drawPoint(x+i,y)
+    }
+    for(let i = 0;i<=10;i++){
+        drawPoint(x,y-i)
+    }
+    for(let i = 0;i<=10;i++){
+        drawPoint(x-i,y)
+    }
+}
+
 function drawLine(a,b){
     if (!Array.isArray(a)  || !Array.isArray(b)){
         console.error("drawLine() was not given suficient data, arrays expected")
@@ -30,7 +46,7 @@ function drawLine(a,b){
         for (let delta = a[0];b[0]>delta;delta+=0.5){
             lineFunction = slope * (delta - b[0]) + b[1]
             drawPoint(delta,lineFunction)
-            console.warn(a[0],lineFunction)
+            //console.warn(a[0],lineFunction)
         } 
     }else{
         if(a[1]>b[1]){
@@ -40,7 +56,7 @@ function drawLine(a,b){
         }
         for(let y = a[1] ; b[1]>y ; y+=0.5){
             drawPoint(b[0],y)
-            console.warn(y)
+            //console.warn(y)
         }
     }
 }
@@ -75,6 +91,102 @@ function drawCircle(h,k,r){
     
 }
 
+function rotateVector(x,y,z,rad){
+    xp = x * Math.sin(rad) + y * Math.cos(rad)
+    yp = x * (-Math.cos(rad)) + y * Math.sin(rad)
+    z  = z 
+    return [xp,yp,z]
+}
+
+//cubeVerticies = [[100,-100,100],[100,100,100],[-100,-100,100],[-100,100,100],[100,-100,-100],[100,100,-100],[-100,-100,-100],[-100,100,-100]]
+
+cubeVerticies = [[100,-100,100],[100,-100,-100],[-100,-100,-100],[-100,-100,100],[-100,100,100],[100,100,100],[100,100,-100],[-100,100,-100]]
+
+function seeCube(cubeVerticiesOg){
+    cubeVerticiesN = []
+    for(let i = 0;i<=cubeVerticiesOg.length - 1;i++){
+        out = [cubeVerticiesOg[i][0],cubeVerticiesOg[i][1]* Math.sin(Math.PI/4) - cubeVerticiesOg[i][2] * Math.cos(Math.PI/4),cubeVerticiesOg[i][1]* Math.cos(Math.PI/4) + cubeVerticiesOg[i][2] * Math.sin(Math.PI/4)]
+        cubeVerticiesN.push(out)
+    }
+    return cubeVerticiesN
+}
+
+function rotateCube(cubeVerticies,rad){
+    output = cubeVerticies    
+    
+    for(let i = 0;i<=cubeVerticies.length - 1;i++){
+        output[i] = rotateVector(output[i][0],output[i][1],output[i][2],rad) 
+    }
+    return output
+}
+
+function drawCube(cubeVerticies,x=600,y=300){
+    //console.log(cubeVerticies)
+    cubeVerticies = seeCube(cubeVerticies)
+    //console.log(cubeVerticies)
+    drawLine([(cubeVerticies[0][0]+x),(cubeVerticies[0][1]+y)],[(cubeVerticies[1][0]+x),(cubeVerticies[1][1]+y)])
+    drawLine([(cubeVerticies[0][0]+x),(cubeVerticies[0][1]+y)],[(cubeVerticies[3][0]+x),(cubeVerticies[3][1]+y)])
+    drawLine([(cubeVerticies[0][0]+x),(cubeVerticies[0][1]+y)],[(cubeVerticies[5][0]+x),(cubeVerticies[5][1]+y)])
+    drawLine([(cubeVerticies[2][0]+x),(cubeVerticies[2][1]+y)],[(cubeVerticies[1][0]+x),(cubeVerticies[1][1]+y)])
+    drawLine([(cubeVerticies[2][0]+x),(cubeVerticies[2][1]+y)],[(cubeVerticies[3][0]+x),(cubeVerticies[3][1]+y)])
+    drawLine([(cubeVerticies[2][0]+x),(cubeVerticies[2][1]+y)],[(cubeVerticies[7][0]+x),(cubeVerticies[7][1]+y)])
+    drawLine([(cubeVerticies[6][0]+x),(cubeVerticies[6][1]+y)],[(cubeVerticies[1][0]+x),(cubeVerticies[1][1]+y)])
+    drawLine([(cubeVerticies[6][0]+x),(cubeVerticies[6][1]+y)],[(cubeVerticies[5][0]+x),(cubeVerticies[5][1]+y)])
+    drawLine([(cubeVerticies[6][0]+x),(cubeVerticies[6][1]+y)],[(cubeVerticies[7][0]+x),(cubeVerticies[7][1]+y)])
+    drawLine([(cubeVerticies[5][0]+x),(cubeVerticies[5][1]+y)],[(cubeVerticies[4][0]+x),(cubeVerticies[4][1]+y)])
+    drawLine([(cubeVerticies[4][0]+x),(cubeVerticies[4][1]+y)],[(cubeVerticies[3][0]+x),(cubeVerticies[3][1]+y)])
+    drawLine([(cubeVerticies[4][0]+x),(cubeVerticies[4][1]+y)],[(cubeVerticies[7][0]+x),(cubeVerticies[7][1]+y)])
+
+
+
+
+    /* for(let i = 0;i<=cubeVerticies.length - 1;i++){
+        //drawCross(Math.round(cubeVerticies[i][0]+600),Math.round(cubeVerticies[i][1]+300))
+        
+        //drawLine([Math.round(cubeVerticies[i][0]+600),Math.round(cubeVerticies[i][1]+300)],[Math.round(cubeVerticies[i+1][0]+600),Math.round(cubeVerticies[i+1][1]+300)])
+        //console.log([Math.round(cubeVerticies[i][0]+100),Math.round(cubeVerticies[i][1]+100)])
+        
+        drawLine([(cubeVerticies[i][0]+600),(cubeVerticies[i][1]+300)],[(cubeVerticies[i+1][0]+600),(cubeVerticies[i+1][1]+300)])
+        
+        //console.log([cubeVerticies[i+1][0],Math.round(cubeVerticies[i+1][1])])
+        //drawLine([cubeVerticies[i+1][0]+100,cubeVerticies[i+1][1]*100],[cubeVerticies[0]+100,cubeVerticies[i][1]*100+10])
+    } */
+}
+
+
+i=0
+function s1(){
+    setInterval(()=>{
+        if(i<=10000){
+            ctx.clearRect(0,0,1000,1000)
+            drawCube(rotateCube(cubeVerticies,i),600,300)
+            //console.log(rotateCube(cubeVerticies,i))
+            i+=0.0001
+        }
+    },100)
+}
+function s2(){
+    setInterval(()=>{
+        if(i<=10000){
+            drawCube(rotateCube(cubeVerticies,i))
+            //console.log(rotateCube(cubeVerticies,i))
+            i+=0.0001
+        }
+    },100)
+}
+function s3(){
+    setInterval(()=>{
+        if(i<=10000){
+            ctx.clearRect(0,0,1000,250)
+            drawCube(rotateCube(cubeVerticies,i))
+            i+=0.0001
+        }
+    },100)
+}
+
+s1()
+
+
 /* document.addEventListener("pointermove",function(e){
     drawCircle(e.clientX,e.clientY,10)
 }) */
@@ -83,9 +195,9 @@ function drawCircle(h,k,r){
     drawCircle(e.clientX,e.clientY,100)
 }) */
 
-document.addEventListener("pointermove",function(e){
+/* document.addEventListener("pointermove",function(e){
     drawLine([e.clientX,e.clientY],[e.clientX + Math.random()*50,e.clientY + Math.random()*50])
-})
+}) */
 
 /* coordA  = []
 coordB  = []
@@ -100,3 +212,44 @@ document.addEventListener("click",function(e){
         coordB  = []
     }
 }) */
+
+
+
+
+
+
+//cool
+/* 
+i=0
+function s1(){
+    setInterval(()=>{
+        if(i<=10000){
+            ctx.clearRect(0,0,100,100)
+            drawCube(rotateCube(cubeVerticies,i),100,100)
+            //console.log(rotateCube(cubeVerticies,i))
+            i+=0.0001
+        }
+    },100)
+}
+function s2(){
+    setInterval(()=>{
+        if(i<=10000){
+            drawCube(rotateCube(cubeVerticies,i))
+            //console.log(rotateCube(cubeVerticies,i))
+            i+=0.0001
+        }
+    },100)
+}
+function s3(){
+    setInterval(()=>{
+        if(i<=10000){
+            drawCube(rotateCube(cubeVerticies,i))
+            //console.log(rotateCube(cubeVerticies,i))
+            i+=0.0001
+        }
+    },100)
+    setInterval(()=>{ctx.clearRect(0,0,1000,1000)},500)
+}
+
+s3()
+s1() */
