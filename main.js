@@ -73,22 +73,6 @@ function rotateVectorZY(vector,rad){
     return [x,y,z]
 }
 
-function rotateObjectZY(objectVerticies,rad=Math.PI/4){
-    output = []
-    for(let i = 0;i<=objectVerticies.length - 1;i++){
-        output.push(rotateVectorZY(objectVerticies[i],rad))
-    }
-    return output
-}
-
-function rotateObjectXY(objectVerticies,rad){
-    output = []    
-    for(let i = 0;i<=objectVerticies.length - 1;i++){
-        output.push(rotateVectorXY(objectVerticies[i],rad)) 
-    }
-    return output
-}
-
 //--------------------------------------------------------------//
 //                         objetos                              //
 //--------------------------------------------------------------//
@@ -96,9 +80,9 @@ function rotateObjectXY(objectVerticies,rad){
 class Point{
     constructor(name,x,y,z,displacement){
         this.name   = name
-        this.x    = x
-        this.y    = y
-        this.z    = z
+        this.x      = x
+        this.y      = y
+        this.z      = z
     }
 
 }
@@ -109,9 +93,9 @@ class Line{
         this.point1 = p1
         this.point2 = p2
     }
-    render(){
-        let p1 = [this.point1.x,this.point1.y,this.point1.z]
-        let p2 = [this.point2.x,this.point2.y,this.point2.z]
+    render(xOfset,yOfset,zOfset){
+        let p1 = [this.point1.x+xOfset,this.point1.y+yOfset,this.point1.z+zOfset]
+        let p2 = [this.point2.x+xOfset,this.point2.y+yOfset,this.point2.z+zOfset]
         drawLine(p1,p2)
     }
 }
@@ -121,9 +105,9 @@ class Entity{
         if (!Array.isArray(pos)){console.error("")}
         else if (pos.length != 3){console.error("")}
 
-        this.x        = pos[0]
-        this.y        = pos[1]
-        this.z        = pos[2]
+        this.x        = pos[0]/2
+        this.y        = pos[1]/2
+        this.z        = pos[2]/2
         this.vertices = []
         this.edges    = []
         this.faces    = []
@@ -131,7 +115,7 @@ class Entity{
     }
     addVertice(x,y,z){
         let name = "v-" + this.vertices.length
-        let p = new Point(name,this.x+x,this.y+y,this.z+z)
+        let p = new Point(name,x,y,z)
         this.vertices.push(p)
     }
     addEdge(p1Name,p2Name){
@@ -163,9 +147,9 @@ class Entity{
             e = rotateVectorZY(e)
         })
     }
-
     render(){
-        this.edges.forEach((v,i)=>v.render())
+        this.edges.forEach((e,i)=>{
+            e.render(this.x,this.y,this.z)})
     }
 }
 
@@ -176,93 +160,46 @@ class Cube extends Entity{
         super(pos)
         this.dim = dim
 
-        this.addVertice(-1,1,-1)
-        this.addVertice(1,1,-1)
-        this.addVertice(1,-1,-1)
-        this.addVertice(-1,-1,-1)
-        this.addVertice(-1,-1,1)
-        this.addVertice(-1,1,1)
-        this.addVertice(1,1,1)
-        this.addVertice(-1,1,1)
-
+        this.addVertice(-1,  1,  -1)//v-0
+        this.addVertice(1,   1,  -1)//v-1
+        this.addVertice(1,  -1,  -1)//v-2
+        this.addVertice(-1, -1,  -1)//v-3
+        this.addVertice(-1,  1,   1)//v-4
+        this.addVertice(1,   1,   1)//v-5
+        this.addVertice(1,  -1,   1)//v-6
+        this.addVertice(-1, -1,   1)//v-7
+        
+        let a = this.vertices
+        console.log(a)
         this.vertices.forEach((e)=>{
+            console.log(e)
             e.x = e.x * (1/2) * dim[0]
             e.y = e.y * (1/2) * dim[1]
             e.z = e.z * (1/2) * dim[2]
+            console.log(e,(1/2) * dim[1])
         })
+
         this.addEdge("v-0","v-1")//1
         this.addEdge("v-1","v-2")//2
         this.addEdge("v-2","v-3")//3
-        this.addEdge("v-3","v-4")//4
+        this.addEdge("v-3","v-0")//4
         this.addEdge("v-4","v-5")//5
         this.addEdge("v-5","v-6")//6
         this.addEdge("v-6","v-7")//7
-        this.addEdge("v-7","v-0")//8
-        this.addEdge("v-1","v-6")//9
-        this.addEdge("v-2","v-5")//10
-        this.addEdge("v-0","v-3")//11
-        this.addEdge("v-4","v-7")//12
+        this.addEdge("v-7","v-4")//8
+        this.addEdge("v-0","v-4")//9
+        this.addEdge("v-1","v-5")//10
+        this.addEdge("v-2","v-6")//11
+        this.addEdge("v-3","v-7")//12
     }
 }
 
-function drawCube(cubeVerticies,x=600,y=300){
-    drawLine([(cubeVerticies[0][0]+x),(cubeVerticies[0][1]+y),cubeVerticies[0][2]],[(cubeVerticies[1][0]+x),(cubeVerticies[1][1]+y),cubeVerticies[1][2]])
-    drawLine([(cubeVerticies[0][0]+x),(cubeVerticies[0][1]+y),cubeVerticies[0][2]],[(cubeVerticies[3][0]+x),(cubeVerticies[3][1]+y),cubeVerticies[3][2]])
-    drawLine([(cubeVerticies[0][0]+x),(cubeVerticies[0][1]+y),cubeVerticies[0][2]],[(cubeVerticies[5][0]+x),(cubeVerticies[5][1]+y),cubeVerticies[5][2]])
-    drawLine([(cubeVerticies[2][0]+x),(cubeVerticies[2][1]+y),cubeVerticies[2][2]],[(cubeVerticies[1][0]+x),(cubeVerticies[1][1]+y),cubeVerticies[1][2]])
-    drawLine([(cubeVerticies[2][0]+x),(cubeVerticies[2][1]+y),cubeVerticies[2][2]],[(cubeVerticies[3][0]+x),(cubeVerticies[3][1]+y),cubeVerticies[3][2]])
-    drawLine([(cubeVerticies[2][0]+x),(cubeVerticies[2][1]+y),cubeVerticies[2][2]],[(cubeVerticies[7][0]+x),(cubeVerticies[7][1]+y),cubeVerticies[7][2]])
-    drawLine([(cubeVerticies[6][0]+x),(cubeVerticies[6][1]+y),cubeVerticies[6][2]],[(cubeVerticies[1][0]+x),(cubeVerticies[1][1]+y),cubeVerticies[1][2]])
-    drawLine([(cubeVerticies[6][0]+x),(cubeVerticies[6][1]+y),cubeVerticies[6][2]],[(cubeVerticies[5][0]+x),(cubeVerticies[5][1]+y),cubeVerticies[5][2]])
-    drawLine([(cubeVerticies[6][0]+x),(cubeVerticies[6][1]+y),cubeVerticies[6][2]],[(cubeVerticies[7][0]+x),(cubeVerticies[7][1]+y),cubeVerticies[7][2]])
-    drawLine([(cubeVerticies[5][0]+x),(cubeVerticies[5][1]+y),cubeVerticies[5][2]],[(cubeVerticies[4][0]+x),(cubeVerticies[4][1]+y),cubeVerticies[4][2]])
-    drawLine([(cubeVerticies[4][0]+x),(cubeVerticies[4][1]+y),cubeVerticies[4][2]],[(cubeVerticies[3][0]+x),(cubeVerticies[3][1]+y),cubeVerticies[3][2]])
-    drawLine([(cubeVerticies[4][0]+x),(cubeVerticies[4][1]+y),cubeVerticies[4][2]],[(cubeVerticies[7][0]+x),(cubeVerticies[7][1]+y),cubeVerticies[7][2]])
-}
-function drawPiramid(cubeVerticies,x=600,y=300){
-    drawLine([(cubeVerticies[0][0]+x),(cubeVerticies[0][1]+y)],[(cubeVerticies[1][0]+x),(cubeVerticies[1][1]+y)])
-    drawLine([(cubeVerticies[0][0]+x),(cubeVerticies[0][1]+y)],[(cubeVerticies[3][0]+x),(cubeVerticies[3][1]+y)])
-    drawLine([(cubeVerticies[2][0]+x),(cubeVerticies[2][1]+y)],[(cubeVerticies[1][0]+x),(cubeVerticies[1][1]+y)])
-    drawLine([(cubeVerticies[2][0]+x),(cubeVerticies[2][1]+y)],[(cubeVerticies[3][0]+x),(cubeVerticies[3][1]+y)])
-    drawLine([(cubeVerticies[4][0]+x),(cubeVerticies[4][1]+y)],[(cubeVerticies[0][0]+x),(cubeVerticies[0][1]+y)])
-    drawLine([(cubeVerticies[4][0]+x),(cubeVerticies[4][1]+y)],[(cubeVerticies[1][0]+x),(cubeVerticies[1][1]+y)])
-    drawLine([(cubeVerticies[4][0]+x),(cubeVerticies[4][1]+y)],[(cubeVerticies[2][0]+x),(cubeVerticies[2][1]+y)])
-    drawLine([(cubeVerticies[4][0]+x),(cubeVerticies[4][1]+y)],[(cubeVerticies[3][0]+x),(cubeVerticies[3][1]+y)])
-}
 
 //--------------------------------------------------------------//
 //               instanciamiento de entidades                   //
 //--------------------------------------------------------------//
 
-function s1(cubo){
-    i = 0
-    setInterval(()=>{
-        if(i<=5000){
-            v = rotateObjectXY(cubo,i/100)
-            v = rotateObjectZY(v)
-            ctx.clearRect(0,0,1000,1000)
-            drawCube(v,600,300)
-            i += 1
-        }
-    },100)
-}
-
-function s2(cubo){
-    i = 0
-    setInterval(()=>{
-        if(i<=5000){
-            v = rotateObjectXY(cubo,i/100)
-            v = rotateObjectZY(v,i/10)
-            ctx.clearRect(0,0,1000,1000)
-            drawPiramid(v,600,300)
-            i += 1
-        }
-    },100)
-}
-
-piramide = [[100,-100,-100],[-100,-100,-100],[-100,100,-100],[100,100,-100],[0,0,100]]
-
-cubo     = [[100,-100,100],[100,-100,-100],[-100,-100,-100],[-100,-100,100],[-100,100,100],[100,100,100],[100,100,-100],[-100,100,-100]]
+c = new Cube([400,200,100],[100,100,100])
 
 
 //--------------------------------------------------------------//
@@ -273,8 +210,8 @@ document.addEventListener("click",(e)=>{console.log(e.clientX,e.clientY)})
 
 //s1(cubo)
 
-c = new Cube([10,10,0],[100,100,100])
 console.log(c.vertices)
 ctx.clearRect(0,0,1000,1000)
-c.rotateXY(50)
+c.rotateXY(1)
+c.rotateZY(5)
 c.render()
