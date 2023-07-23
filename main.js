@@ -16,15 +16,6 @@ function drawPoint(x,y){
     ctx.stroke();
 }
 
-function drawCross(x,y){
-    for(let i = 0;i<=10;i++){
-        drawPoint(x,y+i)
-        drawPoint(x+i,y)
-        drawPoint(x,y-i)
-        drawPoint(x-i,y)
-    }
-}
-
 function drawLine(a,b){
     ctx.beginPath();
     ctx.moveTo(a[0],a[1]);
@@ -32,57 +23,47 @@ function drawLine(a,b){
     ctx.stroke();
 }
 
-function drawCircle(h,k,r){
-    lastfx1 = 0
-    lastfx2 = 0
-    for(let x = h - r; x <= h + r; x += 1){
-        c   =   (x**2 - 2*h*x + h**2 + k**2 - r**2);
-        b   =   (-2*k)
-        fx1 =   (-b + Math.sqrt(b**2 -4*c))/2;
-        fx2 =   (-b - Math.sqrt(b**2 -4*c))/2;
-        
-        if((lastfx1 - fx1)<1.5){
-            drawPoint(x,fx1);
-            drawPoint(x,fx2);
-        }else{
-            drawLine([x - 1,lastfx1],[x - 1,fx1])
-            drawLine([x - 1,lastfx2],[x - 1,fx2])
-        }
-        lastfx1 = fx1
-        lastfx2 = fx2
-        
-    }
-    
-}
-
 //--------------------------------------------------------------//
 //                  funciones de sim 3d                         //
 //--------------------------------------------------------------//
 
-function rotateVectorXY(vector,rad){
-    x = vector[0] * Math.sin(rad)      + vector[1] * Math.cos(rad)
-    y = vector[0] * -Math.cos(rad)     + vector[1] * Math.sin(rad)
-    z = vector[2] 
-    return [x,y,z]
-}
-
-function rotateVectorZY(vector,rad){
-    x = vector[0]
-    y = vector[1]* Math.sin(rad) - vector[2] * Math.cos(rad)
-    z = vector[1]* Math.cos(rad) + vector[2] * Math.sin(rad)
-    return [x,y,z]
-}
+/* nada */
 
 //--------------------------------------------------------------//
 //                         objetos                              //
 //--------------------------------------------------------------//
 
-class Point{
+class Vector{
     constructor(name,x,y,z,displacement){
         this.name   = name
         this.x      = x
         this.y      = y
         this.z      = z
+    }
+    rotateXY(rad=Math.PI/4){
+        let x = this.x * Math.round(Math.cos(rad)*1000)/1000   - this.y * Math.round(Math.sin(rad))
+        let y = this.x * Math.round(Math.sin(rad)*1000)/1000   + this.y * Math.round(Math.cos(rad)*1000)/1000
+        let z = this.z
+        this.update(x,y,z) 
+    }
+    rotateZY(rad=Math.PI/4){
+        let x = this.x
+        let y = this.y * Math.round(Math.cos(rad)*1000)/1000 - this.z * Math.round(Math.sin(rad)*1000)/1000
+        let z = this.y * Math.round(Math.sin(rad)*1000)/1000 + this.z * Math.round(Math.cos(rad)*1000)/1000
+        this.update(x,y,z)
+    }
+    rotateZX(rad=Math.PI/4){
+        //console.log([this.x,this.y,this.z])
+        let x = this.x * Math.round(Math.cos(rad)*1000)/1000 - this.z * Math.round(Math.sin(rad)*1000)/1000
+        let y = this.y
+        let z = this.x * Math.round(Math.sin(rad)*1000)/1000 + this.z * Math.round(Math.cos(rad)*1000)/1000
+        this.update(x,y,z)
+        //console.log([this.x,this.y,this.z])
+    }
+    update(x,y,z){
+        this.x = x
+        this.y = y
+        this.z = z
     }
 
 }
@@ -90,12 +71,12 @@ class Point{
 class Line{
     constructor(name,p1,p2){
         this.name   = name
-        this.point1 = p1
-        this.point2 = p2
+        this.vector1 = p1
+        this.vector2 = p2
     }
     render(xOfset,yOfset,zOfset){
-        let p1 = [this.point1.x+xOfset,this.point1.y+yOfset,this.point1.z+zOfset]
-        let p2 = [this.point2.x+xOfset,this.point2.y+yOfset,this.point2.z+zOfset]
+        let p1 = [this.vector1.x+xOfset,this.vector1.y+yOfset]
+        let p2 = [this.vector2.x+xOfset,this.vector2.y+yOfset]
         drawLine(p1,p2)
     }
 }
@@ -115,7 +96,7 @@ class Entity{
     }
     addVertice(x,y,z){
         let name = "v-" + this.vertices.length
-        let p = new Point(name,x,y,z)
+        let p = new Vector(name,x,y,z)
         this.vertices.push(p)
     }
     addEdge(p1Name,p2Name){
@@ -135,18 +116,20 @@ class Entity{
     }
     rotateXY(rad){
         this.vertices.forEach((e)=>{
-            let vect = [e.x,e.y,e.z]
-            vect = rotateVectorXY(vect,rad)
-            e.x  = vect[0]
-            e.y  = vect[1]
-            e.z  = vect[2]
+            e.rotateXY(rad)
         }) 
     }
     rotateZY(rad){
         this.vertices.forEach((e)=>{
-            e = rotateVectorZY(e)
+            e.rotateZY(rad)
         })
     }
+    rotateZX(rad){
+        this.vertices.forEach((e)=>{
+            e.rotateZX(rad)
+        })
+    }
+    
     render(){
         this.edges.forEach((e,i)=>{
             e.render(this.x,this.y,this.z)})
@@ -169,14 +152,10 @@ class Cube extends Entity{
         this.addVertice(1,  -1,   1)//v-6
         this.addVertice(-1, -1,   1)//v-7
         
-        let a = this.vertices
-        console.log(a)
         this.vertices.forEach((e)=>{
-            console.log(e)
             e.x = e.x * (1/2) * dim[0]
             e.y = e.y * (1/2) * dim[1]
             e.z = e.z * (1/2) * dim[2]
-            console.log(e,(1/2) * dim[1])
         })
 
         this.addEdge("v-0","v-1")//1
@@ -199,7 +178,76 @@ class Cube extends Entity{
 //               instanciamiento de entidades                   //
 //--------------------------------------------------------------//
 
-c = new Cube([400,200,100],[100,100,100])
+//fffffffffffffffffffffffffffffffffffffffffffffffffffff
+/* c1  = new Cube([500,1150,100],[100,100,100])
+c2  = new Cube([500,950,100],[100,100,100])
+c3  = new Cube([500,750,100],[100,100,100])
+c4  = new Cube([500,550,100],[100,100,100])
+c5  = new Cube([500,350,100],[100,100,100])
+c6  = new Cube([700,350,100],[100,100,100])
+c7  = new Cube([900,350,100],[100,100,100])
+c8  = new Cube([1100,350,100],[100,100,100])
+c9  = new Cube([700,750,100],[100,100,100])
+c10 = new Cube([900,750,100],[100,100,100]) */
+
+c1  = new Cube([500,700,100],[50,600,50])
+
+c2  = new Cube([700,700,100],[150,50,50])
+
+c3  = new Cube([850,150,100],[300,50,50])
+
+//eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+c4  = new Cube([1500,700,100],[50,600,50])
+
+c5  = new Cube([1850,700,100],[300,50,50])
+
+c6  = new Cube([1850,150,100],[300,50,50])
+
+c7  = new Cube([1850,1250,100],[300,50,50])
+
+//l
+c8  = new Cube([500,700,100],[50,600,50])
+
+c9  = new Cube([850,1250,100],[300,50,50])
+
+//I
+
+c10 = new Cube([1500,800,100],[50,500,50])
+
+c11 = new Cube([1500,200,100],[50,50,50])
+
+//z
+
+c12 = new Cube([1200,1250,100],[600,50,50])
+
+c13 = new Cube([1200,750,100],[600,50,50])
+c13.rotateXY(-Math.PI/4)
+
+c14 = new Cube([1200,250,100],[600,50,50])
+
+//-
+
+c15 = new Cube([1200,750,100],[600,50,50])
+
+//d
+let c16 = new Cube([800,450,100],[400,50,50])
+c16.rotateXY(Math.PI/4)
+
+c17 = new Cube([800,950,100],[400,50,50])
+c17.rotateXY(-Math.PI/4)
+
+//a
+c18 = new Cube([1000,650,100],[600,50,50])
+c18.rotateXY(-Math.PI/3)
+c19 = new Cube([1400,650,100],[600,50,50])
+c19.rotateXY(Math.PI/3)
+c20 = new Cube([1200,700,100],[150,50,50])
+
+
+cubes = [c1,c2,c3,c4,c5,c6,c7]
+
+cubos=[[c1,c2,c3,c4,c5,c6,c7],[c8,c9,c10,c11],[c12,c13,c14],[c15],[c1,c16,c17,c10,c11],[c18,c19,c20]]
+
 
 
 //--------------------------------------------------------------//
@@ -208,10 +256,78 @@ c = new Cube([400,200,100],[100,100,100])
 
 document.addEventListener("click",(e)=>{console.log(e.clientX,e.clientY)})
 
-//s1(cubo)
-
-console.log(c.vertices)
 ctx.clearRect(0,0,1000,1000)
-c.rotateXY(1)
-c.rotateZY(5)
-c.render()
+
+
+i   = 1
+j   = 1
+
+setInterval(()=>{
+    cubes = cubos[j]
+    cubes.forEach((e)=>{e.rotateZX(-Math.PI/2)})
+    if(j!=cubos.length-1){
+        j++
+    }
+},5000)
+
+cubes.forEach((e)=>{e.rotateZX(-Math.PI/2)})
+setInterval(()=>{
+    if(i<1000000){
+        ctx.clearRect(0,0,10000,1000)
+        cubes.forEach((e)=>{
+            e.rotateZX(0.05)
+            e.render()
+        })
+        i+=1
+    }
+
+},100)  
+
+
+
+
+
+// c1.rotateXY()
+// c1.rotateZY()
+// c1.render()
+
+/* c2.rotateXY()
+c2.rotateZY()
+c2.render()
+
+c3.rotateXY()
+c3.rotateZY()
+c3.render()
+
+c4.rotateXY()
+c4.rotateZY()
+c4.render()
+
+c5.rotateXY()
+c5.rotateZY()
+c5.render()
+
+c6.rotateXY()
+c6.rotateZY()
+c6.render()
+
+c7.rotateXY()
+c7.rotateZY()
+c7.render()
+
+c8.rotateXY()
+c8.rotateZY()
+c8.render()
+
+c9.rotateXY()
+c9.rotateZY()
+c9.render()
+
+c10.rotateXY()
+c10.rotateZY()
+c10.render() */
+
+
+// c5.rotateZX()
+// c5.rotateZY()
+// c5.render()
