@@ -53,23 +53,18 @@ class Vector{
         let y = this.x * Math.sin(rad)+ this.y * Math.cos(rad)
         let z = this.z
         this.update(x,y,z)
-        //console.log("callXY")
     }
     rotateZY(rad=Math.PI/4){
         let x = this.x
         let y = this.y * Math.cos(rad)- this.z * Math.sin(rad)
         let z = this.y * Math.sin(rad) + this.z * Math.cos(rad)
         this.update(x,y,z)
-        //console.log("callZY")
     }
     rotateZX(rad=Math.PI/4){
-        //console.log([this.x,this.y,this.z])
         let x = this.x * Math.cos(rad) - this.z * Math.sin(rad)
         let y = this.y
         let z = this.x * Math.sin(rad)+ this.z * Math.cos(rad)
         this.update(x,y,z)
-        //console.log("callXY")
-        //console.log([this.x,this.y,this.z])
     }
     update(x,y,z){
         this.x = x
@@ -143,16 +138,14 @@ class Entity{
             e.rotateZX(rad)
         })
         this.currentRotationZX += rad
-    }
-   
-   
+    } 
     render(){
         this.edges.forEach((e,i)=>{
             e.render(this.x,this.y,this.z)})
     }
 }
 
-class Cube extends Entity{
+class Cubes extends Entity{
     constructor(pos,dim){
         if (!Array.isArray(dim)){console.error("")}
         else if (dim.length != 3){console.error("")}
@@ -199,7 +192,7 @@ class Piramid extends Entity{
         this.addVertice(1,   1,  -1)//v-1
         this.addVertice(1,  -1,  -1)//v-2
         this.addVertice(-1, -1,  -1)//v-3
-        this.addVertice(0,  0,   1)//v-4
+        this.addVertice(0,   0,   1)//v-4
 
        
         this.vertices.forEach((e)=>{
@@ -227,16 +220,80 @@ class Hexagon extends Entity{
 
         this.addVertice(-1/2,  Math.sqrt(3)/2,  -1)//v-0
         this.addVertice(1/2,   Math.sqrt(3)/2,  -1)//v-1
-        this.addVertice(1,  0,  -1)//v-2
-        this.addVertice(1/2, -Math.sqrt(3)/2,  -1)//v-3
-        this.addVertice(-1/2,  -Math.sqrt(3)/2,   -1)//v-4
-        this.addVertice(-1, 0,  -1)//v-5
-this.addVertice(-1 / 2, Math.sqrt(3) / 2, 1) //v-0
-       this.addVertice(1 / 2, Math.sqrt(3) / 2, 1) //v-1
-       this.addVertice(1, 0, 1) //v-2
-       this.addVertice(1 / 2, -Math.sqrt(3) / 2, 1) //v-3
-       this.addVertice(-1/2, -Math.sqrt(3)/2, 1) //v-4
-       this.addVertice(-1, 0, 1) //v-5
+        this.addVertice(1,          0,          -1)//v-2
+        this.addVertice(1/2,  -Math.sqrt(3)/2,  -1)//v-3
+        this.addVertice(-1/2, -Math.sqrt(3)/2   -1)//v-4
+        this.addVertice(-1,         0,          -1)//v-5
+        this.addVertice(-1/2,  Math.sqrt(3)/2,   1)//v-6
+        this.addVertice(1/2,   Math.sqrt(3)/2,   1)//v-7
+        this.addVertice(1,          0,           1)//v-8
+        this.addVertice(1/2,  -Math.sqrt(3)/2,   1)//v-9
+        this.addVertice(-1/2, -Math.sqrt(3)/2,   1)//v-10
+        this.addVertice(-1,         0,           1)//v-11
+       
+        this.vertices.forEach((e)=>{
+            e.x = e.x * (1/2) * dim[0]
+            e.y = e.y * (1/2) * dim[1]
+            e.z = e.z * (1/2) * dim[2]
+        })
+
+        this.addEdge("v-0","v-1")   //1
+        this.addEdge("v-1","v-2")   //2
+        this.addEdge("v-2","v-3")   //3
+        this.addEdge("v-3","v-4")   //4
+        this.addEdge("v-4","v-5")   //5
+        this.addEdge("v-6","v-7")   //6
+        this.addEdge("v-8","v-9")   //7
+        this.addEdge("v-10","v-11") //8
+        this.addEdge("v-11","v-6")  //9
+        this.addEdge("v-5","v-0")   //10
+        this.addEdge("v-0","v-6")   //11
+        this.addEdge("v-1","v-7")   //12
+        this.addEdge("v-2","v-8")   //13
+        this.addEdge("v-3","v-9")   //14
+        this.addEdge("v-4","v-10")  //15
+        this.addEdge("v-5","v-11")  //16
+        this.addEdge("v-7","v-8")   //17
+        this.addEdge("v-9","v-10")  //18
+    }
+}
+class Cube extends Entity{
+    constructor(pos,dim){
+        if (!Array.isArray(dim)){console.error("")}
+        else if (dim.length != 3){console.error("")}
+        super(pos)
+        this.dim = dim
+
+        this.addVertice(0.3433,0,0.9392)        //
+        this.addVertice(0.1061,0.3265,0.9392)   //
+        this.addVertice(-0.2777,0.2018,0.9392)  //
+        this.addVertice(-0.2777,-0.2018,0.9392) //
+        this.addVertice(0.1061,-0.3265,0.9392)  //
+        this.addVertice(0.6866,0,0.7271)        //
+        this.addVertice(0.2122,0.653,0.7271)    //
+        this.addVertice(-0.5554,0.4035,0.7271)  //
+        this.addVertice(-0.5554,-0.4035,0.7271) //
+        this.addVertice(0.2122,-0.653,0.7271)   //
+        this.addVertice(0.7926,-0.3265,0.5149)  //
+        this.addVertice(0.7926,0.3265,0.5149)   //
+        this.addVertice(0.5554,0.653,0.5149)    //
+        this.addVertice(-0.0656,0.8547,0.5149)  //
+        this.addVertice(-0.4494,0.73,0.5149)    //
+        this.addVertice(-0.8332,0.2018,0.5149)  //
+        this.addVertice(-0.8332,-0.2018,0.5149) //
+        this.addVertice(-0.4494,-0.73,0.5149)   //
+        this.addVertice(-0.0656,-0.8547,0.5149) //
+        this.addVertice(0.5554,-0.653,0.5149)   //
+        this.addVertice(0.9643,-0.2018,0.1716)  //
+        this.addVertice(0.9643,0.2018,0.1716)   //
+        this.addVertice(0.4899,0.8547,0.1716)   //
+        this.addVertice(0.1061,0.9794,0.1716)   //
+        this.addVertice(-0.6615,0.73,0.1716)    //
+        this.addVertice(-0.8987,0.4035,0.1716)  //
+        this.addVertice(-0.8987,-0.4035,0.1716) //
+        this.addVertice(-0.6615,-0.73,0.1716)   //
+        this.addVertice(0.1061,-0.9794,0.1716)  //
+        this.addVertice(0.4899,-0.8547,0.1716)  //
        
         this.vertices.forEach((e)=>{
             e.x = e.x * (1/2) * dim[0]
@@ -248,20 +305,48 @@ this.addVertice(-1 / 2, Math.sqrt(3) / 2, 1) //v-0
         this.addEdge("v-1","v-2")//2
         this.addEdge("v-2","v-3")//3
         this.addEdge("v-3","v-4")//4
-        this.addEdge("v-4","v-5")//5
-        this.addEdge("v-6","v-7")//6
-        this.addEdge("v-8","v-9")//7
-        this.addEdge("v-10","v-11")//8
-        this.addEdge("v-11", "v-6") //1
-        this.addEdge("v-5", "v-0") //2
-        this.addEdge("v-0", "v-6") //3
-        this.addEdge("v-1", "v-7") //4
-        this.addEdge("v-2", "v-8") //5
-        this.addEdge("v-3", "v-9") //6
-        this.addEdge("v-4", "v-10") //7
-        this.addEdge("v-5", "v-11") //8
-        this.addEdge("v-7", "v-8") //7
-        this.addEdge("v-9", "v-10") //8
+        this.addEdge("v-4","v-9")//5
+        this.addEdge("v-0","v-5")//
+        this.addEdge("v-1","v-6")//
+        this.addEdge("v-2","v-7")//
+        this.addEdge("v-3","v-8")//
+        this.addEdge("v-4","v-9")//
+        this.addEdge("v-4","v-0")//
+        this.addEdge("v-5","v-10")//
+        this.addEdge("v-5","v-11")//
+        this.addEdge("v-6","v-12")//
+        this.addEdge("v-6","v-13")//
+        this.addEdge("v-7","v-14")//
+        this.addEdge("v-7","v-15")//
+        this.addEdge("v-8","v-16")//
+        this.addEdge("v-8","v-17")//
+        this.addEdge("v-9","v-18")//
+        this.addEdge("v-9","v-19")//
+        this.addEdge("v-11","v-12")//
+        this.addEdge("v-13","v-14")//
+        this.addEdge("v-15","v-16")//
+        this.addEdge("v-17","v-18")//
+        this.addEdge("v-19","v-10")//
+        this.addEdge("v-21","v-22")//
+        this.addEdge("v-23","v-24")//
+        this.addEdge("v-25","v-26")//
+        this.addEdge("v-27","v-28")//
+        this.addEdge("v-29","v-20")//
+        this.addEdge("v-10","v-20")//
+        this.addEdge("v-11","v-21")//
+        this.addEdge("v-12","v-22")//
+        this.addEdge("v-13","v-23")//
+        this.addEdge("v-14","v-24")//
+        this.addEdge("v-15","v-25")//
+        this.addEdge("v-16","v-26")//
+        this.addEdge("v-17","v-27")//
+        this.addEdge("v-18","v-28")//
+        this.addEdge("v-19","v-29")//
+        this.addEdge("v-20","v-21")//
+        this.addEdge("v-22","v-23")//
+        this.addEdge("v-24","v-25")//
+        this.addEdge("v-26","v-27")//
+        this.addEdge("v-28","v-29")//
     }
 }
 
@@ -269,46 +354,22 @@ this.addVertice(-1 / 2, Math.sqrt(3) / 2, 1) //v-0
 //               instanciamiento de entidades                   //
 //--------------------------------------------------------------//
 
-let entities = []
-let isTouching = false
-let active = 0
+let entities    = []
+let isTouching  = false
+let active      = 0
 
 
 document.addEventListener("click", (e) => {
-     //console.log(e.clientX,e.clientY)
-    let en = new Cube([e.clientX, e.clientY, 0], [Math.random() * 100, Math.random() * 100, 100])
-    //  let en2 = new Piramid([e.clientX + 100, e.clientY + 100, 0], [Math.random() * 100, Math.random() * 100, 100])
-    //  let en3 = new Hexagon([e.clientX - 100, e.clientY - 100, 0], [Math.random() * 100, Math.random() * 100, 100])
+    let en = new Cube([e.clientX, e.clientY, 0], [100, 100, 100])
     entities.push(en)
-    //  entities.push(en2)
-    //  entities.push(en3)
      active += 1
- })
-
-
-/*document.addEventListener("mousedown",(e)=>{
-  isTouching = true
-  a = setInterval(()=>{
-    //console.log(e.clientX,e.clientY)
-    let en = new Cube([e.clientX,e.clientY,0],[Math.random()*100,Math.random()*100,100])
-    let en2 =  new Piramid([e.clientX+100,e.clientY+100,0],[Math.random()*100,Math.random()*100,100])
-    let en3 = new Hexagon([e.clientX - 100, e.clientY - 100, 0], [Math.random() * 100, Math.random() * 100, 100])
-      entities.push(en)
-      entities.push(en2)
-      entities.push
-      active+=3
-  },100)
-  if(!a){a.clearInterval}
 })
-document.addEventListener("mouseup",()=>{isTouchingisTouch = false})*/
+
 //--------------------------------------------------------------//
 //                         runtime                              //
 //--------------------------------------------------------------//
-ctx.clearRect(0,0,1000,1000)
-
 
 i=1
-
 setInterval(()=>{
     entities.forEach((e)=>{
         if(e instanceof Cube){
@@ -323,18 +384,7 @@ setInterval(()=>{
     })
     if(i<100000000000000000){
         ctx.clearRect(0,0,10000,10000)
-        entities.forEach((e)=>{
-            //e.rotateZX(0.01)
-            //e.rotateZY(0.01)
-            //e.rotateXY(0.01)
-            //let x = (e.x) * Math.cos(0.01) - (e.y) * Math.sin(0.01)
-            //let y = (e.x) * Math.sin(0.01) + (e.y) * Math.cos(0.01)
-            //e.x = x
-            //e.y = y
-            //e.x+=10
-            e.render()
-            //console.log("currently simulating "+active+" enteties")
-        })
+        entities.forEach((e)=>e.render())
         i+=1
     }
 
@@ -366,3 +416,29 @@ document.addEventListener("keydown",(e)=>{
         entities.forEach((e)=>{e.y += 5})
     }
 })
+/* let str     = "0.3433;0;0.9392;0.1061;0.3265;0.9392;-0.2777;0.2018;0.9392;-0.2777;-0.2018;0.9392;0.1061;-0.3265;0.9392;0.6866;0;0.7271;0.2122;0.653;0.7271;-0.5554;0.4035;0.7271;-0.5554;-0.4035;0.7271;0.2122;-0.653;0.7271;0.7926;-0.3265;0.5149;0.7926;0.3265;0.5149;0.5554;0.653;0.5149;-0.0656;0.8547;0.5149;-0.4494;0.73;0.5149;-0.8332;0.2018;0.5149;-0.8332;-0.2018;0.5149;-0.4494;-0.73;0.5149;-0.0656;-0.8547;0.5149;0.5554;-0.653;0.5149;0.9643;-0.2018;0.1716;0.9643;0.2018;0.1716;0.4899;0.8547;0.1716;0.1061;0.9794;0.1716;-0.6615;0.73;0.1716;-0.8987;0.4035;0.1716;-0.8987;-0.4035;0.1716;-0.6615;-0.73;0.1716;0.1061;-0.9794;0.1716;0.4899;-0.8547;0.1716"
+let x       = []
+let y       = []
+let z       = []
+let pstr    = ""
+let counter = 0
+for(let i = 0;i<=str.length;i++){
+    if(str[i]==";"){
+        if(counter%3==0){
+            z.push(pstr)
+        }
+        else if(counter%2==0){
+            y.push(pstr)
+        }
+        else{
+            x.push(pstr)
+        }
+        counter++
+        pstr = ""
+    }else{
+        pstr += str[i]
+    }
+}
+x.forEach((e,im)=>{
+    console.log("this.addVertice("+x[im]+","+y[im]+","+z[im]+")")
+}) */
