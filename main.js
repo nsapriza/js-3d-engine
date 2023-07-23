@@ -86,12 +86,15 @@ class Entity{
         if (!Array.isArray(pos)){console.error("")}
         else if (pos.length != 3){console.error("")}
 
-        this.x        = pos[0]/2
-        this.y        = pos[1]/2
-        this.z        = pos[2]/2
+        this.x        = pos[0]
+        this.y        = pos[1]
+        this.z        = pos[2]
         this.vertices = []
         this.edges    = []
         this.faces    = []
+        this.currentRotationXY = 0
+        this.currentRotationZY = 0
+        this.currentRotationZY = 0
         
     }
     addVertice(x,y,z){
@@ -117,17 +120,20 @@ class Entity{
     rotateXY(rad){
         this.vertices.forEach((e)=>{
             e.rotateXY(rad)
-        }) 
+        })
+        this.currentRotationXY += rad 
     }
     rotateZY(rad){
         this.vertices.forEach((e)=>{
             e.rotateZY(rad)
         })
+        this.currentRotationZY += rad 
     }
     rotateZX(rad){
         this.vertices.forEach((e)=>{
             e.rotateZX(rad)
         })
+        this.currentRotationZX += rad 
     }
     
     render(){
@@ -172,162 +178,79 @@ class Cube extends Entity{
         this.addEdge("v-3","v-7")//12
     }
 }
+class Piramid extends Entity{
+    constructor(pos,dim){
+        if (!Array.isArray(dim)){console.error("")}
+        else if (dim.length != 3){console.error("")}
+        super(pos)
+        this.dim = dim
+
+        this.addVertice(-1,  1,  -1)//v-0
+        this.addVertice(1,   1,  -1)//v-1
+        this.addVertice(1,  -1,  -1)//v-2
+        this.addVertice(-1, -1,  -1)//v-3
+        this.addVertice(0,  0,   1)//v-4
+
+        
+        this.vertices.forEach((e)=>{
+            e.x = e.x * (1/2) * dim[0]
+            e.y = e.y * (1/2) * dim[1]
+            e.z = e.z * (1/2) * dim[2]
+        })
+
+        this.addEdge("v-0","v-1")//1
+        this.addEdge("v-1","v-2")//2
+        this.addEdge("v-2","v-3")//3
+        this.addEdge("v-3","v-0")//4
+        this.addEdge("v-0","v-4")//5
+        this.addEdge("v-1","v-4")//6
+        this.addEdge("v-2","v-4")//7
+        this.addEdge("v-3","v-4")//8
+    }
+}
 
 
 //--------------------------------------------------------------//
 //               instanciamiento de entidades                   //
 //--------------------------------------------------------------//
 
-//fffffffffffffffffffffffffffffffffffffffffffffffffffff
-/* c1  = new Cube([500,1150,100],[100,100,100])
-c2  = new Cube([500,950,100],[100,100,100])
-c3  = new Cube([500,750,100],[100,100,100])
-c4  = new Cube([500,550,100],[100,100,100])
-c5  = new Cube([500,350,100],[100,100,100])
-c6  = new Cube([700,350,100],[100,100,100])
-c7  = new Cube([900,350,100],[100,100,100])
-c8  = new Cube([1100,350,100],[100,100,100])
-c9  = new Cube([700,750,100],[100,100,100])
-c10 = new Cube([900,750,100],[100,100,100]) */
+let entities = []
 
-c1  = new Cube([500,700,100],[50,600,50])
-
-c2  = new Cube([700,700,100],[150,50,50])
-
-c3  = new Cube([850,150,100],[300,50,50])
-
-//eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
-c4  = new Cube([1500,700,100],[50,600,50])
-
-c5  = new Cube([1850,700,100],[300,50,50])
-
-c6  = new Cube([1850,150,100],[300,50,50])
-
-c7  = new Cube([1850,1250,100],[300,50,50])
-
-//l
-c8  = new Cube([500,700,100],[50,600,50])
-
-c9  = new Cube([850,1250,100],[300,50,50])
-
-//I
-
-c10 = new Cube([1500,800,100],[50,500,50])
-
-c11 = new Cube([1500,200,100],[50,50,50])
-
-//z
-
-c12 = new Cube([1200,1250,100],[600,50,50])
-
-c13 = new Cube([1200,750,100],[600,50,50])
-c13.rotateXY(-Math.PI/4)
-
-c14 = new Cube([1200,250,100],[600,50,50])
-
-//-
-
-c15 = new Cube([1200,750,100],[600,50,50])
-
-//d
-let c16 = new Cube([800,450,100],[400,50,50])
-c16.rotateXY(Math.PI/4)
-
-c17 = new Cube([800,950,100],[400,50,50])
-c17.rotateXY(-Math.PI/4)
-
-//a
-c18 = new Cube([1000,650,100],[600,50,50])
-c18.rotateXY(-Math.PI/3)
-c19 = new Cube([1400,650,100],[600,50,50])
-c19.rotateXY(Math.PI/3)
-c20 = new Cube([1200,700,100],[150,50,50])
-
-
-cubes = [c1,c2,c3,c4,c5,c6,c7]
-
-cubos=[[c1,c2,c3,c4,c5,c6,c7],[c8,c9,c10,c11],[c12,c13,c14],[c15],[c1,c16,c17,c10,c11],[c18,c19,c20]]
-
-
-
+document.addEventListener("click",(e)=>{
+    console.log(e.clientX,e.clientY)
+    let en = new Cube([e.clientX,e.clientY,0],[Math.random()*100,Math.random()*100,100])
+    let en2 =  new Piramid([e.clientX+100,e.clientY+100,0],[Math.random()*100,Math.random()*100,100])
+    entities.push(en)
+    entities.push(en2)
+})
 //--------------------------------------------------------------//
 //                         runtime                              //
 //--------------------------------------------------------------//
-
-document.addEventListener("click",(e)=>{console.log(e.clientX,e.clientY)})
-
 ctx.clearRect(0,0,1000,1000)
 
 
-i   = 1
-j   = 1
+i=1
 
 setInterval(()=>{
-    cubes = cubos[j]
-    cubes.forEach((e)=>{e.rotateZX(-Math.PI/2)})
-    if(j!=cubos.length-1){
-        j++
-    }
-},5000)
-
-cubes.forEach((e)=>{e.rotateZX(-Math.PI/2)})
-setInterval(()=>{
-    if(i<1000000){
-        ctx.clearRect(0,0,10000,1000)
-        cubes.forEach((e)=>{
-            e.rotateZX(0.05)
+    entities.forEach((e)=>{
+        if(e instanceof Cube){
+            if (e.currentRotationZY != -Math.PI/4){
+                e.rotateZY(-Math.PI/4)
+            }
+        }else{
+            if (e.currentRotationZY != Math.PI/2){
+                e.rotateZY(Math.PI/4)
+            }
+        }        
+    })
+    if(i<100000000000000000){
+        ctx.clearRect(0,0,10000,10000)
+        entities.forEach((e)=>{
+            e.rotateZX(0.01)
+            e.x+=10
             e.render()
         })
         i+=1
     }
 
-},100)  
-
-
-
-
-
-// c1.rotateXY()
-// c1.rotateZY()
-// c1.render()
-
-/* c2.rotateXY()
-c2.rotateZY()
-c2.render()
-
-c3.rotateXY()
-c3.rotateZY()
-c3.render()
-
-c4.rotateXY()
-c4.rotateZY()
-c4.render()
-
-c5.rotateXY()
-c5.rotateZY()
-c5.render()
-
-c6.rotateXY()
-c6.rotateZY()
-c6.render()
-
-c7.rotateXY()
-c7.rotateZY()
-c7.render()
-
-c8.rotateXY()
-c8.rotateZY()
-c8.render()
-
-c9.rotateXY()
-c9.rotateZY()
-c9.render()
-
-c10.rotateXY()
-c10.rotateZY()
-c10.render() */
-
-
-// c5.rotateZX()
-// c5.rotateZY()
-// c5.render()
+},100)
