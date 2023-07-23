@@ -5,6 +5,12 @@ document.body.appendChild(canvase);
 let ctx         =   canvase.getContext("2d");
 
 
+//--------------------------------------------------------------//
+//                  funciones de uso general                    //
+//--------------------------------------------------------------//
+
+
+
 function drawPoint(x,y){
     ctx.fillRect(x-0.5, y-0.5, 0.5, 0.5);
     ctx.stroke();
@@ -20,47 +26,10 @@ function drawCross(x,y){
 }
 
 function drawLine(a,b){
-    if((a[1]<270 && b[1]<270) || (a[1]>370 && b[1]>370) || (a[2]>=0 || b[2]>=0)){
-        ctx.beginPath();
-        ctx.moveTo(a[0],a[1]);
-        ctx.lineTo(b[0], b[1]);
-        ctx.stroke();
-    }else{
-        return
-    }
-    /* if (!Array.isArray(a)  || !Array.isArray(b)){
-        console.error("drawLine() was not given suficient data, arrays expected")
-        console.table(a,b)
-        return
-    }
-    if(a.length != 2 || b.length != 2){
-        console.error("array size more than expected")
-        console.table(a,b)
-        return
-    }
-    if(a[0]>b[0]){
-        c = a
-        a = b
-        b = c
-    }
-    if(a[0]!==b[0]){
-        slope = (a[1] - b[1]) / (a[0] - b[0])
-        for (let delta = a[0];b[0]>delta;delta+=0.5){
-            lineFunction = slope * (delta - b[0]) + b[1]
-            drawPoint(delta,lineFunction)
-            //console.warn(a[0],lineFunction)
-        } 
-    }else{
-        if(a[1]>b[1]){
-            c = a
-            a = b
-            b = c
-        }
-        for(let y = a[1] ; b[1]>y ; y+=0.5){
-            drawPoint(b[0],y)
-            //console.warn(y)
-        }
-    } */
+    ctx.beginPath();
+    ctx.moveTo(a[0],a[1]);
+    ctx.lineTo(b[0], b[1]);
+    ctx.stroke();
 }
 
 function drawCircle(h,k,r){
@@ -86,14 +55,9 @@ function drawCircle(h,k,r){
     
 }
 
-
-//-------------------------------------------------------------------------------------------------
-
-piramide = [[100,-100,-100],[-100,-100,-100],[-100,100,-100],[100,100,-100],[0,0,100]]
-
-cubo     = [[100,-100,100],[100,-100,-100],[-100,-100,-100],[-100,-100,100],[-100,100,100],[100,100,100],[100,100,-100],[-100,100,-100]]
-
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------//
+//                  funciones de sim 3d                         //
+//--------------------------------------------------------------//
 
 function rotateVectorXY(vector,rad){
     x = vector[0] * Math.sin(rad)      + vector[1] * Math.cos(rad)
@@ -125,6 +89,122 @@ function rotateObjectXY(objectVerticies,rad){
     return output
 }
 
+//--------------------------------------------------------------//
+//                         objetos                              //
+//--------------------------------------------------------------//
+
+class Point{
+    constructor(name,x,y,z,displacement){
+        this.name   = name
+        this.x    = x
+        this.y    = y
+        this.z    = z
+    }
+
+}
+
+class Line{
+    constructor(name,p1,p2){
+        this.name   = name
+        this.point1 = p1
+        this.point2 = p2
+    }
+    render(){
+        let p1 = [this.point1.x,this.point1.y,this.point1.z]
+        let p2 = [this.point2.x,this.point2.y,this.point2.z]
+        drawLine(p1,p2)
+    }
+}
+
+class Entity{
+    constructor(pos){
+        if (!Array.isArray(pos)){console.error("")}
+        else if (pos.length != 3){console.error("")}
+
+        this.x        = pos[0]
+        this.y        = pos[1]
+        this.z        = pos[2]
+        this.vertices = []
+        this.edges    = []
+        this.faces    = []
+        
+    }
+    addVertice(x,y,z){
+        let name = "v-" + this.vertices.length
+        let p = new Point(name,this.x+x,this.y+y,this.z+z)
+        this.vertices.push(p)
+    }
+    addEdge(p1Name,p2Name){
+        if(!this.vertices.indexOf(p1Name) || !this.vertices.indexOf(p2Name)){
+            console.error("vertice not found")
+            return
+        }
+        let p1 
+        let p2
+        this.vertices.forEach((e)=>{
+            if (e.name == p1Name){p1 = e}
+            if (e.name == p2Name){p2 = e}
+        })
+        let name    = "e-"+this.edges.length
+        let edge    = new Line(name,p1,p2) 
+        this.edges.push(edge)
+    }
+    rotateXY(rad){
+        this.vertices.forEach((e)=>{
+            let vect = [e.x,e.y,e.z]
+            vect = rotateVectorXY(vect,rad)
+            e.x  = vect[0]
+            e.y  = vect[1]
+            e.z  = vect[2]
+        }) 
+    }
+    rotateZY(rad){
+        this.vertices.forEach((e)=>{
+            e = rotateVectorZY(e)
+        })
+    }
+
+    render(){
+        this.edges.forEach((v,i)=>v.render())
+    }
+}
+
+class Cube extends Entity{
+    constructor(pos,dim){
+        if (!Array.isArray(dim)){console.error("")}
+        else if (dim.length != 3){console.error("")}
+        super(pos)
+        this.dim = dim
+
+        this.addVertice(-1,1,-1)
+        this.addVertice(1,1,-1)
+        this.addVertice(1,-1,-1)
+        this.addVertice(-1,-1,-1)
+        this.addVertice(-1,-1,1)
+        this.addVertice(-1,1,1)
+        this.addVertice(1,1,1)
+        this.addVertice(-1,1,1)
+
+        this.vertices.forEach((e)=>{
+            e.x = e.x * (1/2) * dim[0]
+            e.y = e.y * (1/2) * dim[1]
+            e.z = e.z * (1/2) * dim[2]
+        })
+        this.addEdge("v-0","v-1")//1
+        this.addEdge("v-1","v-2")//2
+        this.addEdge("v-2","v-3")//3
+        this.addEdge("v-3","v-4")//4
+        this.addEdge("v-4","v-5")//5
+        this.addEdge("v-5","v-6")//6
+        this.addEdge("v-6","v-7")//7
+        this.addEdge("v-7","v-0")//8
+        this.addEdge("v-1","v-6")//9
+        this.addEdge("v-2","v-5")//10
+        this.addEdge("v-0","v-3")//11
+        this.addEdge("v-4","v-7")//12
+    }
+}
+
 function drawCube(cubeVerticies,x=600,y=300){
     drawLine([(cubeVerticies[0][0]+x),(cubeVerticies[0][1]+y),cubeVerticies[0][2]],[(cubeVerticies[1][0]+x),(cubeVerticies[1][1]+y),cubeVerticies[1][2]])
     drawLine([(cubeVerticies[0][0]+x),(cubeVerticies[0][1]+y),cubeVerticies[0][2]],[(cubeVerticies[3][0]+x),(cubeVerticies[3][1]+y),cubeVerticies[3][2]])
@@ -150,6 +230,9 @@ function drawPiramid(cubeVerticies,x=600,y=300){
     drawLine([(cubeVerticies[4][0]+x),(cubeVerticies[4][1]+y)],[(cubeVerticies[3][0]+x),(cubeVerticies[3][1]+y)])
 }
 
+//--------------------------------------------------------------//
+//               instanciamiento de entidades                   //
+//--------------------------------------------------------------//
 
 function s1(cubo){
     i = 0
@@ -164,7 +247,6 @@ function s1(cubo){
     },100)
 }
 
-
 function s2(cubo){
     i = 0
     setInterval(()=>{
@@ -177,23 +259,22 @@ function s2(cubo){
         }
     },100)
 }
-//s2(piramide)
+
+piramide = [[100,-100,-100],[-100,-100,-100],[-100,100,-100],[100,100,-100],[0,0,100]]
+
+cubo     = [[100,-100,100],[100,-100,-100],[-100,-100,-100],[-100,-100,100],[-100,100,100],[100,100,100],[100,100,-100],[-100,100,-100]]
+
+
+//--------------------------------------------------------------//
+//                         runtime                              //
+//--------------------------------------------------------------//
 
 document.addEventListener("click",(e)=>{console.log(e.clientX,e.clientY)})
 
-s1(cubo)
+//s1(cubo)
 
-/* v = rotateObjectXY(cubo,Math.PI/4)
-v = rotateObjectZY(v)
- */
-
-//console.log([v[2][0]+600 , v[2][1]+300 , v[2][2]] , [ v[3][0]+600 , v[3][1]+300 , v[3][2]])
-//console.log(v[2][1]+300 > 270 || v[3][1]+300 > 270)
-//console.log(v[2][1]+300 < 300 || v[3][1]+300 < 300)
-//console.log(v[2][1]+300 > 270,v[2][1]+300 < 300 ,v[2][2] <= 0,0,v[3][1]+300 > 270,v[3][1]+300 < 300 ,v[3][2] <= 0)
-
-/* console.log((v[1]<270 && v[1]<270),(v[1]>370 && v[1]>370),(v[2]>=0 && v[2]>=0))
-drawLine([(v[2][0]+x),(v[2][1]+y),v[2][2]],[(v[3][0]+x),(v[3][1]+y),v[3][2]])
-
+c = new Cube([10,10,0],[100,100,100])
+console.log(c.vertices)
 ctx.clearRect(0,0,1000,1000)
-drawCube(v,600,300) */
+c.rotateXY(50)
+c.render()
